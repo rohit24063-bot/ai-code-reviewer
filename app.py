@@ -44,11 +44,26 @@ def call_gemini(prompt: str) -> str | None:
             st.error("Gemini returned an empty response. Please try again.")
             return None
 
-        return response.content
+        content = response.content
+
+        # LangChain may return content as a list of blocks
+        if isinstance(content, list):
+            text_parts = []
+
+            for block in content:
+                if isinstance(block, dict) and block.get("type") == "text":
+                    text_parts.append(block.get("text", ""))
+                elif isinstance(block, str):
+                    text_parts.append(block)
+
+            content = "\n".join(text_parts)
+
+        return content
 
     except Exception as e:
         st.error("Unable to reach Gemini right now. Please check your API key "
                  "and connection, then try again.")
+
         with st.expander("Error details"):
             st.exception(e)
 
