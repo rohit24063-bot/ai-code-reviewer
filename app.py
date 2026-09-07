@@ -18,6 +18,12 @@ st.caption("Analyze code, identify bugs, generate fixes, and create test cases w
 api_key = os.getenv("GEMINI_API_KEY")
 
 if not api_key:
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        api_key = None
+
+if not api_key:
     st.error("GEMINI_API_KEY is missing. Add it to your .env file (locally) "
               "or to your Streamlit Cloud app's Secrets (when deployed).")
     st.stop()
