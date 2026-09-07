@@ -61,7 +61,7 @@ The app is a single-page Streamlit application. Each stage (Review, Fix, Tests) 
 
 The app is deployed on Streamlit Community Cloud, built directly from this GitHub repository. The Gemini API key is configured in the deployed app's Secrets rather than committed to the repo.
 
-**Live demo:** _[add your deployed URL here]_
+**Live demo:** _[[add your deployed URL here](https://ai-code-reviewer-h95mmdcnylz8pmsvbfyur8.streamlit.app/)]_
 
 ## What's Not Included (by design)
 
