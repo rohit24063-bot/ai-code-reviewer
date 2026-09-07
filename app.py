@@ -29,11 +29,11 @@ if not api_key:
     st.stop()
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model="gemini-3.5-flash",
     google_api_key=api_key
 )
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.5-flash"
 
 # ---------- Session state ----------
 for key in ["review", "fixed_code", "tests", "last_code", "last_language"]:
