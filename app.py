@@ -24,7 +24,7 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-2.5-flash"
 
 # ---------- Session state ----------
 for key in ["review", "fixed_code", "tests", "last_code", "last_language"]:
