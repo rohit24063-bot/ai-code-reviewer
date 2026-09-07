@@ -2,7 +2,7 @@ import os
 
 import streamlit as st
 from dotenv import load_dotenv
-from google import genai
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
 
@@ -22,31 +22,36 @@ if not api_key:
               "or to your Streamlit Cloud app's Secrets (when deployed).")
     st.stop()
 
-client = genai.Client(api_key=api_key)
+llm = ChatGoogleGenerativeAI(
+    model="gemini-3.6-flash",
+    google_api_key=api_key
+)
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.6-flash"
 
 # ---------- Session state ----------
 for key in ["review", "fixed_code", "tests", "last_code", "last_language"]:
     if key not in st.session_state:
         st.session_state[key] = None
 
-# ---------- Gemini call wrapper ----------
+
+# ---------- LangChain call wrapper ----------
 def call_gemini(prompt: str) -> str | None:
     try:
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=prompt
-        )
-        if not response or not getattr(response, "text", None):
+        response = llm.invoke(prompt)
+
+        if not response or not getattr(response, "content", None):
             st.error("Gemini returned an empty response. Please try again.")
             return None
-        return response.text
+
+        return response.content
+
     except Exception as e:
         st.error("Unable to reach Gemini right now. Please check your API key "
-                  "and connection, then try again.")
+                 "and connection, then try again.")
         with st.expander("Error details"):
             st.exception(e)
+
         return None
 
 
@@ -101,6 +106,7 @@ Code:
 ```{language.lower()}
 {code}```
 """
+
         with st.spinner("Analyzing your code..."):
             result = call_gemini(review_prompt)
 
@@ -111,6 +117,7 @@ Code:
             st.session_state.last_code = code
             st.session_state.last_language = language
 
+
 # ---------- Review results ----------
 if st.session_state.review:
     st.divider()
@@ -118,6 +125,7 @@ if st.session_state.review:
     st.markdown(st.session_state.review)
 
     col1, col2 = st.columns(2)
+
     fix_clicked = col1.button("✨ Fix Code")
     tests_clicked = col2.button("🧪 Generate Tests")
 
@@ -142,8 +150,10 @@ Original code:
 Code review:
 {st.session_state.review}
 """
+
         with st.spinner("Generating corrected code..."):
             result = call_gemini(fix_prompt)
+
         if result:
             st.session_state.fixed_code = result
 
@@ -170,16 +180,20 @@ Original code:
 Code review:
 {st.session_state.review}
 """
+
         with st.spinner("Generating test cases..."):
             result = call_gemini(tests_prompt)
+
         if result:
             st.session_state.tests = result
+
 
 # ---------- Fixed code ----------
 if st.session_state.fixed_code:
     st.divider()
     st.subheader("✨ Recommended Corrected Code")
     st.markdown(st.session_state.fixed_code)
+
 
 # ---------- Tests ----------
 if st.session_state.tests:
